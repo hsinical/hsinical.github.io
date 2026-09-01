@@ -1,11 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google Fonts: Merriweather -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    
+    <!-- External Stylesheet Links directly to style.css in the same folder -->
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <h1>Welcome to My CS180 Portfolio!</h1>
-    <a href="./1/index.html">Project 1</a>
+
+    <main class="portfolio-container">
+        <!-- Minimal Welcome Header -->
+        <header class="portfolio-hero">
+            <h1>Welcome to En Hsin's <span class="highlight">CS180</span> Portfolio!</h1>
+        </header>
+
+        <!-- Project Grid containing only Project 0 -->
+        <section class="projects-section">
+            <div class="project-grid">
+                
+                <a href="./proj0/index.html" class="project-card">
+                    <span class="project-meta">Project 0</span>
+                    <h2>Getting Started →</h2>
+                </a>
+
+            </div>
+        </section>
+    </main>
+
 </body>
 </html>

@@ -1,31 +1,157 @@
+/* ==========================================================================
+   1. GLOBAL CANVAS SETUP
+   ========================================================================== */
 body {
-    font-family: Arial, sans-serif;
-    max-width: 1000px;
-    margin: auto;
-    padding: 40px;
-}
-
-nav {
+    font-family: 'Merriweather', Georgia, serif;
+    background-color: #faf6f0; /* Soft warm pastel cream */
+    color: #3d3a35;            /* Charcoal body text */
+    margin: 0;
+    padding: 0;
     display: flex;
-    gap: 20px;
-    margin-bottom: 80px;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
-nav a {
+/* Unified Layout Wrappers for both index.html pages */
+.portfolio-container, .container {
+    width: 100%;
+    max-width: 1200px;         
+    padding: 80px 40px;        
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;  
+}
+
+/* Core Structural Panels (Cards and Project Steps) */
+.project-card, .project-part {
+    background: #ffffff;
+    padding: 40px;             
+    border-radius: 12px;       
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(232, 226, 216, 0.8);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1000px;         
+}
+
+/* ==========================================================================
+   2. UNIFIED HERO HEADER SYSTEM
+   ========================================================================== */
+.portfolio-hero {
+    width: 100%;
+    margin-bottom: 60px;
+    text-align: left;          
+}
+  
+/* This rule now strictly styles BOTH your landing title and project title */
+.portfolio-hero h1 {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 2.8rem;         /* Locks in the exact same size scale */
+    font-weight: 700;          /* Locks in the bold look */
+    line-height: 1.2;
+    color: #3d3a35;            /* Unified Charcoal text color for headers */
+    margin: 0;
+}
+  
+.portfolio-hero .highlight {
+    color: #5c6b60;            /* Unified Muted Sage Green for italic accents */
+    font-style: italic;
+    font-weight: 400;          /* Softens the italic text slightly */
+}
+
+.subtitle {
+    font-family: 'Merriweather', Georgia, serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #8c857b;            /* Soft subheader grey */
+    margin: 12px 0 0 0;
+}
+
+/* ==========================================================================
+   3. LANDING HUB COMPONENTS (index.html)
+   ========================================================================== */
+.projects-section {
+    width: 100%;
+}
+  
+.project-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+}
+  
+.project-card {
     text-decoration: none;
-    color: black;
+    color: inherit;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+  
+.project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(92, 107, 96, 0.08);
+    border-color: #5c6b60;
+}
+  
+.project-meta {
+    font-size: 1.0rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8c857b;            
+    margin-bottom: 8px;
+}
+  
+.project-card h2 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 0;
 }
 
-section {
-    margin-bottom: 100px;
+/* ==========================================================================
+   4. SHOWCASE MEDIA LAYOUT ENGINE (proj0/index.html)
+   ========================================================================== */
+.project-part {
+    margin-bottom: 40px;       
 }
-
-h1 {
-    font-size: 60px;
+  
+.project-part h2 {
+    font-size: 1.7rem;         
+    color: #7e6b70;            /* Category Color: Dusty Rose */
+    border-bottom: 1px solid #e8e2d8;
+    padding-bottom: 12px;
+    margin: 0 0 30px 0;
 }
-
-.project {
-    padding: 20px;
-    border: 1px solid #ddd;
-    margin: 20px 0;
+  
+.project-part h3 {
+    font-size: 1.1rem;
+    font-weight: 400;
+    font-style: italic;
+    color: #8c857b;
+    margin: 0 0 12px 0;
+}
+  
+figure {
+    margin: 0;
+}
+  
+img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+}
+  
+/* Side-by-Side Photo Comparison Columns */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+  
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr 1fr; 
+    }
 }
