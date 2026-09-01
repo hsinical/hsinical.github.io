@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Portfolio</title>
     
-    <!-- Google Fonts: Merriweather -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- Fixed Google Fonts Connections -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
     
     <!-- External Stylesheet Links directly to style.css in the same folder -->
     <link rel="stylesheet" href="./style.css">
@@ -18,17 +18,48 @@
     <main class="portfolio-container">
         <!-- Minimal Welcome Header -->
         <header class="portfolio-hero">
-            <h1>Welcome to En Hsin's <span class="highlight">CS180</span> Portfolio!</h1>
+            <h1>Welcome to En Hsin's CS180 Portfolio!</h1>
         </header>
 
-        <!-- Project Grid containing only Project 0 -->
+        <!-- Project Grid Frame Layout -->
         <section class="projects-section">
             <div class="project-grid">
                 
+                <!-- Project 0: Clickable Live Card -->
                 <a href="./proj0/index.html" class="project-card">
                     <span class="project-meta">Project 0</span>
-                    <h2>Getting Started →</h2>
+                    <h2>Becoming Friends with Your Camera →</h2>
                 </a>
+
+                <!-- Project 1: Non-Clickable Preview Placeholder -->
+                <div class="project-card incoming">
+                    <span class="project-meta">Project 1</span>
+                    <h2>Images of the Russian Empire</h2>
+                </div>
+
+                <!-- Project 2: Non-Clickable Preview Placeholder -->
+                <div class="project-card incoming">
+                    <span class="project-meta">Project 2</span>
+                    <h2>Fun with Filters and Frequencies</h2>
+                </div>
+
+                <!-- Project 3: Non-Clickable Preview Placeholder -->
+                <div class="project-card incoming">
+                    <span class="project-meta">Project 3</span>
+                    <h2>Fun with Diffusion Models</h2>
+                </div>
+
+                <!-- Project 4: Non-Clickable Preview Placeholder -->
+                <div class="project-card incoming">
+                    <span class="project-meta">Project 4</span>
+                    <h2>(Auto)stitching and Photo Mosaics</h2>
+                </div>
+
+                <!-- Final Project: Non-Clickable Preview Placeholder -->
+                <div class="project-card incoming final-capstone">
+                    <span class="project-meta">Final Project</span>
+                    <h2>TBD</h2>
+                </div>
 
             </div>
         </section>

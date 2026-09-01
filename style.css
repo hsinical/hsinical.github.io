@@ -3,8 +3,8 @@
    ========================================================================== */
 body {
     font-family: 'Merriweather', Georgia, serif;
-    background-color: #faf6f0; /* Soft warm pastel cream */
-    color: #3d3a35;            /* Charcoal body text */
+    background-color: #f3e9fa; /* Soft warm pastel cream */
+    color: #283327;            /* Charcoal body text */
     margin: 0;
     padding: 0;
     display: flex;
@@ -52,21 +52,15 @@ body {
     font-size: 2.8rem;         /* Locks in the exact same size scale */
     font-weight: 700;          /* Locks in the bold look */
     line-height: 1.2;
-    color: #3d3a35;            /* Unified Charcoal text color for headers */
+    color: #381265;            /* Unified Charcoal text color for headers */
     margin: 0;
-}
-  
-.portfolio-hero .highlight {
-    color: #5c6b60;            /* Unified Muted Sage Green for italic accents */
-    font-style: italic;
-    font-weight: 400;          /* Softens the italic text slightly */
 }
 
 .subtitle {
     font-family: 'Merriweather', Georgia, serif;
     font-style: italic;
     font-size: 1.1rem;
-    color: #8c857b;            /* Soft subheader grey */
+    color: #47556f;            /* Soft subheader grey */
     margin: 12px 0 0 0;
 }
 
@@ -99,7 +93,7 @@ body {
     font-size: 1.0rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #8c857b;            
+    color: #526e59;            
     margin-bottom: 8px;
 }
   
@@ -118,7 +112,7 @@ body {
   
 .project-part h2 {
     font-size: 1.7rem;         
-    color: #7e6b70;            /* Category Color: Dusty Rose */
+    color: #873d74;            /* Category Color: Dusty Rose */
     border-bottom: 1px solid #e8e2d8;
     padding-bottom: 12px;
     margin: 0 0 30px 0;
@@ -128,7 +122,7 @@ body {
     font-size: 1.1rem;
     font-weight: 400;
     font-style: italic;
-    color: #8c857b;
+    color: #aa2077;
     margin: 0 0 12px 0;
 }
   
@@ -154,4 +148,22 @@ img {
     .grid {
         grid-template-columns: 1fr 1fr; 
     }
+}
+
+/* ==========================================================================
+   5. EXTENDED DASHBOARD GRID ADDITIONS
+   ========================================================================== */
+/* Changes your single vertical column into a clean stack list with padding blocks */
+.project-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Adds consistent breathing space gaps directly between cards */
+}
+
+/* Base styles for placeholder cards */
+.project-card.incoming {
+    cursor: default; /* Removes pointer finger icon since it cannot be clicked yet */
+    opacity: 0.75;  /* Fades block out slightly to cleanly visually deprioritize it */
+    border-style: dashed; /* Swaps the solid line framework to a clean design sketch frame */
+    background-color: rgba(255, 255, 255, 0.5); /* Soft transparent interior tone background */
 }
