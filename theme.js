@@ -1,4 +1,3 @@
-// tiny theme switcher — no framework needed for two pages
 (function () {
     const root = document.documentElement;
     const stored = localStorage.getItem("theme");

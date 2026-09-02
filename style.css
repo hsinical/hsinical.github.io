@@ -1,8 +1,4 @@
-/* ==========================================================================
-   COLOR SYSTEM — light mode is the default, dark mode overrides via
-   [data-theme="dark"] on <html>. Everything downstream just reads the
-   custom properties, so the rest of the file never checks the theme.
-   ========================================================================== */
+   /* colours */
    :root {
     --bg: #f3ecdc;
     --bg-soft: #eae0c9;
@@ -51,9 +47,6 @@
     --focus-ring: #b596df;
   }
   
-  /* ==========================================================================
-     RESET-ISH BASICS
-     ========================================================================== */
   * {
     box-sizing: border-box;
   }
@@ -85,7 +78,6 @@
     color: var(--surface);
   }
   
-  /* Visible keyboard focus everywhere, not just on hover-capable devices */
   a:focus-visible,
   button:focus-visible {
     outline: 2px solid var(--focus-ring);
@@ -100,9 +92,7 @@
     }
   }
   
-  /* ==========================================================================
-     THEME TOGGLE
-     ========================================================================== */
+  /* dark mode toggle */
   .theme-toggle {
     position: fixed;
     top: 24px;
@@ -142,9 +132,7 @@
   html[data-theme="light"] .theme-toggle .moon-icon,
   :root:not([data-theme]) .theme-toggle .moon-icon { display: none; }
   
-  /* ==========================================================================
-     LAYOUT WRAPPERS
-     ========================================================================== */
+  /* layout wrappers */
   .portfolio-container,
   .container {
     width: 100%;
@@ -153,11 +141,11 @@
     padding: 96px 32px 80px;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 1;
   }
   
-  /* ==========================================================================
-     HERO / HEADER
-     ========================================================================== */
+  /* header */
   .portfolio-hero {
     width: 100%;
     margin-bottom: 56px;
@@ -218,9 +206,7 @@
     text-decoration: underline;
   }
   
-  /* ==========================================================================
-     LANDING PAGE — PROJECT LIST
-     ========================================================================== */
+  /* landing pg */
   .projects-section {
     width: 100%;
   }
@@ -283,7 +269,7 @@
     transform: translateX(4px);
   }
   
-  /* Placeholder / not-yet-built project cards */
+  /* for tbd projects */
   .project-card.incoming {
     cursor: default;
     opacity: 0.6;
@@ -308,9 +294,7 @@
     flex-shrink: 0;
   }
   
-  /* ==========================================================================
-     PROJECT PAGE — PARTS / SECTIONS
-     ========================================================================== */
+  /* project pg parts */
   .project-part {
     background: var(--surface);
     border: 1px solid var(--border-soft);
@@ -379,11 +363,7 @@
     }
   }
   
-  /* ==========================================================================
-     MARGIN CATS — decorative, only shows up when the viewport is wide
-     enough to have real margins. positioned absolutely against the page
-     (not the viewport) so they scatter down the whole scroll length.
-     ========================================================================== */
+  /* CATS MUAAHAHHAHAHA */
   .cat-decor-layer {
     position: absolute;
     top: 0;
@@ -392,7 +372,7 @@
     height: 0;
     overflow: visible;
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
   }
   
   .cat-decor {
@@ -413,7 +393,6 @@
     padding: 20px 0 0;
   }
   
-  /* Small screens: give the toggle its own row so it doesn't crowd the title */
   @media (max-width: 520px) {
     .theme-toggle {
       top: 16px;

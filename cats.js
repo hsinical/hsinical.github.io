@@ -1,20 +1,17 @@
-// scatters the cat cutouts in the left/right margins whenever the
-// viewport is wide enough to actually have margins to put them in.
-// re-rolls the layout on every page load and on resize.
+
 (function () {
-    // Subject.png, "Subject 1.png" ... "Subject 16.png" — 17 images total,
-    // space before the number, no underscore
+    // Subject.png, "Subject 1.png" ... "Subject 16.png"
     const CAT_FILES = ["Subject.png"].concat(
       Array.from({ length: 16 }, (_, i) => `Subject ${i + 1}.png`)
     );
   
-    const CONTENT_WIDTH = 944; // matches .container/.portfolio-container max-width + its padding
-    const MIN_GUTTER = 190;    // don't bother placing cats in a margin this narrow
+    const CONTENT_WIDTH = 944;
+    const MIN_GUTTER = 190; 
     const IMG_MIN = 100;
     const IMG_MAX = 200;
-    const BAND_HEIGHT = 340;   // more room between bands = cats spaced further apart
+    const BAND_HEIGHT = 340; 
     const MAX_PER_SIDE = 10;
-    const SKIP_CHANCE = 0.12;  // low skip rate so the margins don't read as half-empty
+    const SKIP_CHANCE = 0.12; 
   
     const base = window.CAT_BASE || "./catssets/";
     let resizeTimer = null;
