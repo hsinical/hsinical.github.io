@@ -1,169 +1,433 @@
 /* ==========================================================================
-   1. GLOBAL CANVAS SETUP
+   COLOR SYSTEM — light mode is the default, dark mode overrides via
+   [data-theme="dark"] on <html>. Everything downstream just reads the
+   custom properties, so the rest of the file never checks the theme.
    ========================================================================== */
-body {
-    font-family: 'Merriweather', Georgia, serif;
-    background-color: #f3e9fa; /* Soft warm pastel cream */
-    color: #283327;            /* Charcoal body text */
+   :root {
+    --bg: #f3ecdc;
+    --bg-soft: #eae0c9;
+    --surface: #fffbf1;
+    --surface-raised: #ffffff;
+  
+    --ink: #2c2214;
+    --ink-soft: #5b4a35;
+    --ink-faint: #8b7a5f;
+  
+    --wood: #8a5a34;
+    --wood-deep: #5c3d22;
+    --leaf: #4c7247;
+    --leaf-deep: #33502f;
+    --plum: #7c5ba6;
+    --plum-deep: #5c3f80;
+  
+    --border: #ddccA2;
+    --border-soft: #e8ddc0;
+    --shadow: rgba(58, 40, 12, 0.10);
+  
+    --focus-ring: #7c5ba6;
+  }
+  
+  html[data-theme="dark"] {
+    --bg: #1b1610;
+    --bg-soft: #221b12;
+    --surface: #2a2116;
+    --surface-raised: #322819;
+  
+    --ink: #ece2cd;
+    --ink-soft: #cabb9c;
+    --ink-faint: #8e8062;
+  
+    --wood: #c99764;
+    --wood-deep: #e0ac78;
+    --leaf: #8fb27b;
+    --leaf-deep: #a9c491;
+    --plum: #b596df;
+    --plum-deep: #cbb0ec;
+  
+    --border: #40331f;
+    --border-soft: #362b1a;
+    --shadow: rgba(0, 0, 0, 0.35);
+  
+    --focus-ring: #b596df;
+  }
+  
+  /* ==========================================================================
+     RESET-ISH BASICS
+     ========================================================================== */
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    color-scheme: light dark;
+  }
+  
+  body {
+    font-family: "Karla", "Segoe UI", sans-serif;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse at top left, var(--bg-soft) 0%, transparent 55%),
+      radial-gradient(ellipse at bottom right, var(--bg-soft) 0%, transparent 55%);
+    background-attachment: fixed;
+    color: var(--ink);
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     min-height: 100vh;
-    box-sizing: border-box;
-}
-
-/* Unified Layout Wrappers for both index.html pages */
-.portfolio-container, .container {
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  
+  a {
+    color: var(--plum);
+  }
+  
+  ::selection {
+    background: var(--plum);
+    color: var(--surface);
+  }
+  
+  /* Visible keyboard focus everywhere, not just on hover-capable devices */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+  
+  /* ==========================================================================
+     THEME TOGGLE
+     ========================================================================== */
+  .theme-toggle {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px 6px 6px;
+    box-shadow: 0 4px 16px var(--shadow);
+    cursor: pointer;
+    font-family: "Karla", sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  
+  .theme-toggle .icon-wrap {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--leaf);
+  }
+  
+  .theme-toggle svg {
+    width: 15px;
+    height: 15px;
+  }
+  
+  html[data-theme="dark"] .theme-toggle .sun-icon { display: none; }
+  html[data-theme="light"] .theme-toggle .moon-icon,
+  :root:not([data-theme]) .theme-toggle .moon-icon { display: none; }
+  
+  /* ==========================================================================
+     LAYOUT WRAPPERS
+     ========================================================================== */
+  .portfolio-container,
+  .container {
     width: 100%;
-    max-width: 1200px;         
-    padding: 80px 40px;        
-    box-sizing: border-box;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 96px 32px 80px;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;  
-}
-
-/* Core Structural Panels (Cards and Project Steps) */
-.project-card, .project-part {
-    background: #ffffff;
-    padding: 40px;             
-    border-radius: 12px;       
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(232, 226, 216, 0.8);
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 1000px;         
-}
-
-/* ==========================================================================
-   2. UNIFIED HERO HEADER SYSTEM
-   ========================================================================== */
-.portfolio-hero {
-    width: 100%;
-    margin-bottom: 60px;
-    text-align: left;          
-}
+  }
   
-/* This rule now strictly styles BOTH your landing title and project title */
-.portfolio-hero h1 {
-    font-family: 'Merriweather', Georgia, serif;
-    font-size: 2.8rem;         /* Locks in the exact same size scale */
-    font-weight: 700;          /* Locks in the bold look */
-    line-height: 1.2;
-    color: #381265;            /* Unified Charcoal text color for headers */
+  /* ==========================================================================
+     HERO / HEADER
+     ========================================================================== */
+  .portfolio-hero {
+    width: 100%;
+    margin-bottom: 56px;
+  }
+  
+  .eyebrow {
+    display: inline-block;
+    font-family: "Karla", sans-serif;
+    font-size: 0.8rem;
+    color: var(--leaf-deep);
+    margin-bottom: 10px;
+  }
+  
+  .portfolio-hero h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-optical-sizing: auto;
+    font-size: 2.6rem;
+    font-weight: 600;
+    line-height: 1.18;
+    color: var(--ink);
     margin: 0;
-}
-
-.subtitle {
-    font-family: 'Merriweather', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+  
+  .portfolio-hero h1 .accent {
+    color: var(--plum);
     font-style: italic;
-    font-size: 1.1rem;
-    color: #47556f;            /* Soft subheader grey */
-    margin: 12px 0 0 0;
-}
-
-/* ==========================================================================
-   3. LANDING HUB COMPONENTS (index.html)
-   ========================================================================== */
-.projects-section {
-    width: 100%;
-}
+  }
   
-.project-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    width: 100%;
-}
+  .hero-note {
+    font-family: "Karla", sans-serif;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 16px 0 0 0;
+  }
   
-.project-card {
+  .subtitle {
+    font-family: "Karla", sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink-faint);
+    margin: 14px 0 0 0;
+  }
+  
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "Karla", sans-serif;
+    font-size: 0.9rem;
+    color: var(--leaf-deep);
+    text-decoration: none;
+    margin-bottom: 28px;
+  }
+  
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* ==========================================================================
+     LANDING PAGE — PROJECT LIST
+     ========================================================================== */
+  .projects-section {
+    width: 100%;
+  }
+  
+  .project-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .project-card {
+    position: relative;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid var(--leaf);
+    border-radius: 10px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 2px 10px var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-left-color 0.2s ease;
+  }
   
-.project-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(92, 107, 96, 0.08);
-    border-color: #5c6b60;
-}
+  .project-card:hover {
+    transform: translateX(3px);
+    box-shadow: 0 6px 20px var(--shadow);
+    border-left-color: var(--plum);
+  }
   
-.project-meta {
-    font-size: 1.0rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #526e59;            
-    margin-bottom: 8px;
-}
+  .project-meta {
+    display: block;
+    font-family: "Karla", sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--wood);
+    margin-bottom: 6px;
+  }
   
-.project-card h2 {
-    font-size: 1.7rem;
+  .project-card h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ink);
+  }
+  
+  .project-card .arrow {
+    font-size: 1.3rem;
+    color: var(--plum);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  
+  .project-card:hover .arrow {
+    transform: translateX(4px);
+  }
+  
+  /* Placeholder / not-yet-built project cards */
+  .project-card.incoming {
+    cursor: default;
+    opacity: 0.6;
+    border-left-style: dashed;
+    border-left-color: var(--border);
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  .project-card.incoming:hover {
+    transform: none;
+    border-left-color: var(--border);
+  }
+  
+  .status-pill {
+    font-family: "Karla", sans-serif;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    flex-shrink: 0;
+  }
+  
+  /* ==========================================================================
+     PROJECT PAGE — PARTS / SECTIONS
+     ========================================================================== */
+  .project-part {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 36px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 14px var(--shadow);
+  }
+  
+  .project-part h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--leaf-deep);
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 14px;
+    margin: 0 0 18px 0;
+  }
+  
+  .part-desc {
+    font-family: "Karla", sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 68ch;
+    margin: 0 0 24px 0;
+  }
+  
+  .project-part h3 {
+    font-family: "Karla", sans-serif;
+    font-size: 0.95rem;
     font-weight: 700;
+    font-style: normal;
+    color: var(--wood-deep);
+    margin: 0 0 10px 0;
+  }
+  
+  figure {
     margin: 0;
-}
-
-/* ==========================================================================
-   4. SHOWCASE MEDIA LAYOUT ENGINE (proj0/index.html)
-   ========================================================================== */
-.project-part {
-    margin-bottom: 40px;       
-}
+  }
   
-.project-part h2 {
-    font-size: 1.7rem;         
-    color: #873d74;            /* Category Color: Dusty Rose */
-    border-bottom: 1px solid #e8e2d8;
-    padding-bottom: 12px;
-    margin: 0 0 30px 0;
-}
+  figcaption {
+    font-family: "Karla", sans-serif;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    margin-top: 8px;
+  }
   
-.project-part h3 {
-    font-size: 1.1rem;
-    font-weight: 400;
-    font-style: italic;
-    color: #aa2077;
-    margin: 0 0 12px 0;
-}
-  
-figure {
-    margin: 0;
-}
-  
-img {
+  img {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 6px;
-}
+    border-radius: 8px;
+    border: 2px solid var(--plum);
+  }
   
-/* Side-by-Side Photo Comparison Columns */
-.grid {
+  .grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 30px;
-}
+    gap: 24px;
+  }
   
-@media (min-width: 768px) {
+  @media (min-width: 768px) {
     .grid {
-        grid-template-columns: 1fr 1fr; 
+      grid-template-columns: 1fr 1fr;
     }
-}
-
-/* ==========================================================================
-   5. EXTENDED DASHBOARD GRID ADDITIONS
-   ========================================================================== */
-/* Changes your single vertical column into a clean stack list with padding blocks */
-.project-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 25px; /* Adds consistent breathing space gaps directly between cards */
-}
-
-/* Base styles for placeholder cards */
-.project-card.incoming {
-    cursor: default; /* Removes pointer finger icon since it cannot be clicked yet */
-    opacity: 0.75;  /* Fades block out slightly to cleanly visually deprioritize it */
-    border-style: dashed; /* Swaps the solid line framework to a clean design sketch frame */
-    background-color: rgba(255, 255, 255, 0.5); /* Soft transparent interior tone background */
-}
+  }
+  
+  /* ==========================================================================
+     MARGIN CATS — decorative, only shows up when the viewport is wide
+     enough to have real margins. positioned absolutely against the page
+     (not the viewport) so they scatter down the whole scroll length.
+     ========================================================================== */
+  .cat-decor-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .cat-decor {
+    position: absolute;
+    display: block;
+    height: auto;
+    border: none;
+    border-radius: 0;
+    filter: drop-shadow(0 8px 16px var(--shadow));
+    opacity: 0.94;
+  }
+  
+  footer.page-foot {
+    font-family: "Karla", sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    text-align: center;
+    padding: 20px 0 0;
+  }
+  
+  /* Small screens: give the toggle its own row so it doesn't crowd the title */
+  @media (max-width: 520px) {
+    .theme-toggle {
+      top: 16px;
+      right: 16px;
+      padding: 6px 10px 6px 6px;
+    }
+    .theme-toggle .toggle-label {
+      display: none;
+    }
+    .portfolio-container,
+    .container {
+      padding: 84px 20px 60px;
+    }
+    .portfolio-hero h1 {
+      font-size: 2.1rem;
+    }
+  }
