@@ -122,44 +122,6 @@
           <- Click the image to zoom in on the misalignment
         </p>
       </div>
-
-      <details class="code-toggle">
-        <summary>click to show initial <code>align()</code> code</summary>
-        <pre class="code-block">def align(image1, image2, metric):
-            min_L2 = float('inf')
-            max_NCC = float('-inf')
-            best_shift = 0
-            best_dy = 0
-            best_dx = 0
-
-            for dy in range(-15, 16):
-                for dx in range(-15, 16):
-                    shifted_image1 = np.roll(image1, shift=(dy, dx), axis=(0, 1))
-
-                    if metric == 'L2':
-                        L2 = np.sqrt(np.sum(np.sum((shifted_image1 - image2) * (shifted_image1 - image2))))
-
-                        if L2 &lt; min_L2:
-                            min_L2 = L2
-
-                            best_shift = shifted_image1
-                            best_dy = dy
-                            best_dx = dx
-
-                    elif metric == 'NCC':
-                        NCC_1 = (shifted_image1 - np.mean(shifted_image1)) / np.linalg.norm(shifted_image1 - np.mean(shifted_image1))
-                        NCC_2 = (image2 - np.mean(image2)) / np.linalg.norm(image2 - np.mean(image2))
-                        NCC = np.sum(NCC_1 * NCC_2)
-
-                        if NCC &gt; max_NCC:
-                            max_NCC = NCC
-
-                            best_shift = shifted_image1
-                            best_dy = dy
-                            best_dx = dx
-
-            return best_shift, (best_dy, best_dx)</pre>
-      </details>
     </div>
 
     <div class="sub-box">
@@ -199,46 +161,6 @@
           </div>
         </figure>
       </div>
-      <details class="code-toggle">
-        <summary>click to show revised <code>align()</code> code</summary>
-        <pre class="code-block">def align(image1, image2, metric, minrange, maxrange):
-            min_L2 = float('inf')
-            max_NCC = float('-inf')
-            best_shift = 0
-            best_dy = 0
-            best_dx = 0
-            cropped2 = crop_image(image2)
-
-            for dy in range(minrange, maxrange):
-                for dx in range(minrange, maxrange):
-                    shifted_image1 = np.roll(image1, shift=(dy, dx), axis=(0, 1))
-                    cropped1 = crop_image(shifted_image1)
-                    
-                    if metric == 'L2':
-                        L2 = np.sqrt(np.sum(np.sum((cropped1 - crop_image(image2)) 
-                                                * (cropped1 - crop_image(image2)))))
-
-                        if L2 < min_L2:
-                            min_L2 = L2
-
-                            best_shift = shifted_image1
-                            best_dy = dy
-                            best_dx = dx
-
-                    elif metric == 'NCC':
-                        NCC_1 = (cropped1 - np.mean(cropped1)) / np.linalg.norm(cropped1 - np.mean(cropped1)) 
-                        NCC_2 = (cropped2 - np.mean(cropped2)) / np.linalg.norm(cropped2 - np.mean(cropped2))
-                        NCC = np.sum(NCC_1 * NCC_2)
-                        
-                        if NCC > max_NCC:
-                            max_NCC = NCC
-
-                            best_shift = shifted_image1
-                            best_dy = dy
-                            best_dx = dx
-
-            return best_shift, (best_dy, best_dx)</pre>
-      </details>
     </div>
   </section>
 
@@ -315,17 +237,16 @@
             gy = cv.Sobel(image, cv.CV_64F, 0, 1, ksize=3)
             return np.sqrt(gx**2 + gy**2)
 
-        b_edge = edge_map(b)
-        g_edge = edge_map(g)
-        r_edge = edge_map(r)</pre>
+b_edge = edge_map(b)
+g_edge = edge_map(g)
+r_edge = edge_map(r)</pre>
       </details>
     </div>
 
     <div class="sub-box">
       <h3 class="sub-box-title">Final results</h3>
       <p class="part-desc">
-        Every image below was processed with the pyramid, using NCC as
-      the scoring metric. Displacements are listed as (dx, dy).
+        Every image below was processed with the pyramid. Displacements are listed as (dx, dy).
       </p>
       <div class="scroll-gallery">
         <figure class="media-container">
