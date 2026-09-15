@@ -1,4 +1,4 @@
-   /* colours */
+/* colours */
    :root {
     --bg: #f3ecdc;
     --bg-soft: #eae0c9;
@@ -410,3 +410,164 @@
       font-size: 2.1rem;
     }
   }
+
+/* sub-boxes within a project-part */
+.sub-box {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
+}
+
+.sub-box:last-child {
+  margin-bottom: 0;
+}
+
+.sub-box h3 {
+  margin-top: 0;
+}
+
+.shift-readout {
+  font-family: "Karla", monospace;
+  font-size: 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: inline-block;
+  margin: 8px 0 16px 0;
+  color: var(--ink);
+}
+
+/* collapsible code block */
+details.code-toggle {
+  margin-top: 8px;
+}
+
+details.code-toggle summary {
+  cursor: pointer;
+  font-family: "Karla", sans-serif;
+  font-size: 0.85rem;
+  color: var(--plum);
+  user-select: none;
+  margin-bottom: 8px;
+  text-align: left;
+  display: block;
+  width: fit-content;
+}
+
+details.code-toggle summary:hover {
+  color: var(--plum-deep);
+}
+
+pre.code-block {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* horizontal scrolling image gallery */
+.scroll-gallery {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  scroll-snap-type: x proximity;
+}
+
+.scroll-gallery figure {
+  flex: 0 0 320px;
+  scroll-snap-align: start;
+}
+
+.scroll-gallery::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-gallery::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* bigger purple sub-section headings
+   NOTE: selector needs two classes (.sub-box .sub-box-title) so it
+   beats ".project-part h3" above on specificity — a single class
+   selector alone would lose to that class+element rule. */
+.sub-box .sub-box-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--plum);
+  margin: 0 0 16px 0;
+}
+
+/* image floats left, only the paragraph that follows wraps around it.
+   Heading/shift-readout stay full-width above; details/code-block
+   below get clear:both so they're never squeezed into a side column. */
+.wrap-block::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.wrap-image {
+  float: left;
+  width: 260px;
+  margin: 0 24px 12px 0;
+}
+
+@media (max-width: 600px) {
+  .wrap-image {
+    float: none;
+    width: 100%;
+    margin: 0 0 16px 0;
+  }
+}
+
+.code-toggle {
+  clear: both;
+}
+
+/* click-to-enlarge lightbox (JS-driven via lightbox.js — toggles
+   .is-open, no URL/anchor navigation, so scroll position never moves) */
+img.lightbox-trigger {
+  cursor: zoom-in;
+  transition: opacity 0.15s ease;
+}
+
+img.lightbox-trigger:hover {
+  opacity: 0.88;
+}
+
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 4, 0.88);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  cursor: zoom-out;
+}
+
+.lightbox-overlay.is-open {
+  display: flex;
+}
+
+.lightbox-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  border-radius: 8px;
+  border: 2px solid var(--plum);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}

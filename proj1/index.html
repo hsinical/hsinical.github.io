@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 1 — Images of the Russian Empire</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../style.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+<script defer src="../theme.js"></script>
+<script>window.CAT_BASE = "../catssets/";</script>
+<script defer src="../cats.js"></script>
+</head>
+<body>
+
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle light and dark mode">
+  <span class="icon-wrap">
+    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 14.7A8.5 8.5 0 0 1 9.3 3.5a8.5 8.5 0 1 0 11.2 11.2Z"/></svg>
+  </span>
+  <span class="toggle-label">light</span>
+</button>
+
+<main class="container">
+
+  <a href="../index.html" class="back-link">← back to portfolio</a>
+
+  <header class="portfolio-hero">
+    <span class="eyebrow">Project 1</span>
+    <h1>Images of the Russian Empire</h1>
+    <p class="subtitle">En Hsin HOW | ID: 3043225474</p>
+    <p class="hero-note">
+      Colorizing Sergei Prokudin-Gorskii's negatives by
+      splitting each scan into its blue, green, and red exposures and
+       searching for the (x, y) shift that lines them
+      back up into a single color photo.
+    </p>
+  </header>
+
+  <section class="project-part">
+    <h2>Overview</h2>
+    <p class="part-desc">
+      Each scan is a set of grayscale images stacked as three
+      exposures: blue on top, green in the middle, and red on the bottom. 
+      They were taken through different color filters moments apart. 
+      Simply stacking the three slices directly produces a  
+      misaligned image, since each exposure was captured at 
+      a slightly different position and the scans also have rotational 
+      and cropping inconsistencies. The goal here is 
+      to recover the (x, y) translation that aligns green and red 
+      to blue, which is fixed, for every image 
+      in the set.
+    </p>
+  </section>
+
+  <section class="project-part">
+    <h2>Metrics</h2>
+    <p class="part-desc">
+      To score a candidate shift, I compare the shifted channel against
+      the reference (blue) channel with one of two metrics, all
+      computed on the interior of the image only — the outer 6% is
+      cropped out before scoring, since the border of each scan usually
+      has inconsistencies like dark spots or folded edges, which pollutes the score.
+    </p>
+    <h3>L2 (sum of squared differences / Euclidean distance)</h3>
+    <p class="part-desc">
+      $$L_2 = \sqrt{\sum_{x,y} \big(I_1(x,y) - I_2(x,y)\big)^2}$$
+      Subtract corresponding pixels, square the differences, sum them
+      up, then square root it. Squaring makes large mismatches count 
+      disproportionately more than small ones, which means it is more 
+      sensitive to outliers, which is good for precise alignment. But, 
+      this can also be a problem when two channels genuinely differ in 
+      exposure or brightness rather than just being shifted (such as <code>emir.tif</code>).
+    </p>
+    <h3>NCC (normalized cross-correlation)</h3>
+    <p class="part-desc">
+      $$\text{NCC} = \frac{I_1 - \overline{I_1}}{\lVert I_1 - \overline{I_1} \rVert} \cdot \frac{I_2 - \overline{I_2}}{\lVert I_2 - \overline{I_2} \rVert}$$
+      Each image is mean-centered and scaled to unit norm before
+      comparing, which removes each channel's own brightness and
+      contrast from the comparison. What's left is a measure
+      of whether the two images' bright/dark patterns line up, which
+      makes NCC more robust to channels that were
+      exposed very differently.
+    </p>
+  </section>
+
+  <section class="project-part">
+    <h2>Part 1 — Single-scale alignment</h2>
+    <p class="part-desc">
+      For the low-resolution JPEGs, an exhaustive search over every
+      (dx, dy) in [-15, 15] is cheap enough to run directly on the full
+      image, hence no pyramid needed. Below are the problems faced for 
+      this part, and the results for the three baseline images.
+    </p>
+
+    <div class="sub-box">
+      <h3 class="sub-box-title">Problems encountered</h3>
+
+      <h3>Initial results for Cathedral</h3>
+
+      <div class="wrap-block">
+        <img class="lightbox-trigger wrap-image" src="./media/cathedral_nocrop.png" alt="Cathedral without cropped borders aligned with single-scale search">
+        <p class="part-desc">
+            <div class="shift-readout">
+                L2 (dx, dy) - G shift: (1, -1); R shift: (7, -1)
+            </div> <br>
+          My initial align function used the full image, which gave a
+          poor alignment as the original three plates (B, G, R) were not
+          captured with the same framing. To resolve this, I added a
+          <code>crop_image</code> function to crop a fixed margin off the
+          sides (the fringes) and only using the align function on the
+          central part of the photo should give a better alignment.<br><br>
+
+          <- Click the image to zoom in on the misalignment
+        </p>
+      </div>
+
+      <details class="code-toggle">
+        <summary>click to show initial <code>align()</code> code</summary>
+        <pre class="code-block">def align(image1, image2, metric):
+            min_L2 = float('inf')
+            max_NCC = float('-inf')
+            best_shift = 0
+            best_dy = 0
+            best_dx = 0
+
+            for dy in range(-15, 16):
+                for dx in range(-15, 16):
+                    shifted_image1 = np.roll(image1, shift=(dy, dx), axis=(0, 1))
+
+                    if metric == 'L2':
+                        L2 = np.sqrt(np.sum(np.sum((shifted_image1 - image2) * (shifted_image1 - image2))))
+
+                        if L2 &lt; min_L2:
+                            min_L2 = L2
+
+                            best_shift = shifted_image1
+                            best_dy = dy
+                            best_dx = dx
+
+                    elif metric == 'NCC':
+                        NCC_1 = (shifted_image1 - np.mean(shifted_image1)) / np.linalg.norm(shifted_image1 - np.mean(shifted_image1))
+                        NCC_2 = (image2 - np.mean(image2)) / np.linalg.norm(image2 - np.mean(image2))
+                        NCC = np.sum(NCC_1 * NCC_2)
+
+                        if NCC &gt; max_NCC:
+                            max_NCC = NCC
+
+                            best_shift = shifted_image1
+                            best_dy = dy
+                            best_dx = dx
+
+            return best_shift, (best_dy, best_dx)</pre>
+      </details>
+    </div>
+
+    <div class="sub-box">
+      <h3 class="sub-box-title">Final results</h3>
+      <p class="part-desc">
+        I found that cropping 6% of the borders was most effective, hence 
+        applied before scoring, which improved the alignment results. I 
+        then applied this to all three jpgs under both metrics.
+        <details class="code-toggle">
+        <summary>click to show <code>crop_image()</code> code</summary>
+        <pre class="code-block">def crop_image(image):
+            margin_h = int(0.06 * image.shape[0])
+            margin_w = int(0.06 * image.shape[1])
+            return image[margin_h:-margin_h, margin_w:-margin_w]</pre>
+      </details>
+      </p>
+      <div class="scroll-gallery">
+        <figure class="media-container">
+          <h3>Cathedral</h3>
+          <img class="lightbox-trigger" src="./media/cathedral.jpg" alt="Cathedral aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 and NCC (dx, dy):<br>G shift: (2, 5); R shift: (3, 12)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Monastery</h3>
+          <img class="lightbox-trigger" src="./media/monastery.jpg" alt="Monastery aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 and NCC (dx, dy):<br>G shift: (2, -3); R shift: (2, 3)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Tobolsk</h3>
+          <img class="lightbox-trigger" src="./media/tobolsk.jpg" alt="Tobolsk aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 and NCC (dx, dy):<br>G shift: (3, 3); R shift: (3, 6)
+          </div>
+        </figure>
+      </div>
+      <details class="code-toggle">
+        <summary>click to show revised <code>align()</code> code</summary>
+        <pre class="code-block">def align(image1, image2, metric, minrange, maxrange):
+            min_L2 = float('inf')
+            max_NCC = float('-inf')
+            best_shift = 0
+            best_dy = 0
+            best_dx = 0
+            cropped2 = crop_image(image2)
+
+            for dy in range(minrange, maxrange):
+                for dx in range(minrange, maxrange):
+                    shifted_image1 = np.roll(image1, shift=(dy, dx), axis=(0, 1))
+                    cropped1 = crop_image(shifted_image1)
+                    
+                    if metric == 'L2':
+                        L2 = np.sqrt(np.sum(np.sum((cropped1 - crop_image(image2)) 
+                                                * (cropped1 - crop_image(image2)))))
+
+                        if L2 < min_L2:
+                            min_L2 = L2
+
+                            best_shift = shifted_image1
+                            best_dy = dy
+                            best_dx = dx
+
+                    elif metric == 'NCC':
+                        NCC_1 = (cropped1 - np.mean(cropped1)) / np.linalg.norm(cropped1 - np.mean(cropped1)) 
+                        NCC_2 = (cropped2 - np.mean(cropped2)) / np.linalg.norm(cropped2 - np.mean(cropped2))
+                        NCC = np.sum(NCC_1 * NCC_2)
+                        
+                        if NCC > max_NCC:
+                            max_NCC = NCC
+
+                            best_shift = shifted_image1
+                            best_dy = dy
+                            best_dx = dx
+
+            return best_shift, (best_dy, best_dx)</pre>
+      </details>
+    </div>
+  </section>
+
+  <section class="project-part">
+    <h2>Part 2 — Multi-scale pyramid alignment</h2>
+    <p class="part-desc">
+      The full-resolution .tif scans are too large for a ±15 pixel
+      exhaustive search. It will require a much larger range/take 
+      too long as the pixel displacements can be in the hundreds. 
+      Instead, I recursively downscaled each channel by half
+      until it's small enough (under 100px tall) to brute-force
+      directly, then call <code>align()</code>. As I work back up,
+      I start with doubling the shift at each level, which is used 
+      as a starting estimate, then I refine this with a small local 
+      search (±5) around that estimate. This turns an expensive 
+      global search into a cheap coarse estimate plus a handful of 
+      cheap local refinements, even smaller than <code>align()</code>.
+    </p>
+    <div class="sub-box">
+      <h3 class="sub-box-title">Problems encountered</h3>
+
+      <h3>Initial results for <code>emir.tif</code> </h3>
+
+      <div class="wrap-block">
+        <p class="part-desc">
+        However, upon testing, there were still some edges that were not fully aligned.
+        In the case of <code>emir.tif</code>, the misalignment was very large and obvious.
+        This is because The B, G, and R values for this photo differ
+        substantially in exposure and contrast, most visibly in the
+        robe and skin tones. The raw-pixel metric fixes on the brightness mismatches
+        instead of true structural alignment, producing a large,
+        clearly wrong shift (the red channel in particular ends up
+        offset by tens of pixels, visible as thick solid color bands
+        rather than soft fringing).
+            <br>
+        Hence I tried to compute a Sobel gradient-magnitude
+        map for each channel first, (with a clue from the bells & 
+        whistles section) to identify an edgemap. 
+        </p>
+        <p class="part-desc" style="text-align:center;">
+            $$E(x, y) = \sqrt{(\partial I/\partial x)^2 + (\partial I/\partial y)^2}$$
+        </p>
+        <p class="part-desc">
+        This works because 
+        an edge exists in roughly the same place regardless of how 
+        brightness, which sidesteps the brightness-mismatch
+        problem directly rather than just softening its effect. The
+        shift found on the edge maps is then applied to the original,
+        un-processed channels to build the final image — the edge maps
+        are only used to find the alignment, never displayed.
+        </p>
+        <div class="scroll-gallery">
+        <figure class="media-container">
+          <h3>Before (raw NCC)</h3>
+          <img class="lightbox-trigger" src="./media/emir_before.jpg" alt="emir before edgemap">
+          <div class="shift-readout">
+            NCC (dx, dy):<br>G shift: (24, 49); R shift: (-171, -293)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>After (edge-based NCC)</h3>
+          <img class="lightbox-trigger" src="./media/emir_edgemap.png" alt="emir after edgemap">
+          <div class="shift-readout">
+            NCC (dx, dy):<br>G shift: (24, 49); R shift: (40, 107)
+          </div>
+        </figure>
+      </div>
+      </div>
+
+      <details class="code-toggle">
+        <summary>click to show edgemap code</summary>
+        <pre class="code-block">def edge_map(image):
+            gx = cv.Sobel(image, cv.CV_64F, 1, 0, ksize=3)
+            gy = cv.Sobel(image, cv.CV_64F, 0, 1, ksize=3)
+            return np.sqrt(gx**2 + gy**2)
+
+        b_edge = edge_map(b)
+        g_edge = edge_map(g)
+        r_edge = edge_map(r)</pre>
+      </details>
+    </div>
+
+    <div class="sub-box">
+      <h3 class="sub-box-title">Final results</h3>
+      <p class="part-desc">
+        Every image below was processed with the pyramid, using NCC as
+      the scoring metric. Displacements are listed as (dx, dy).
+      </p>
+      <div class="scroll-gallery">
+        <figure class="media-container">
+          <h3>Church</h3>
+          <img class="lightbox-trigger" src="./media/church.jpg" alt="church aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (9.66s) and NCC (20.82s):<br>G shift: (4, 25); R shift: (-4, 58)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Emir</h3>
+          <img class="lightbox-trigger" src="./media/emir_edgemap.png" alt="emir aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (9.97s) and NCC (20.59s):<br>G shift: (24, 49); R shift: (40, 107)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Harvesters</h3>
+          <img class="lightbox-trigger" src="./media/harvesters.jpg" alt="harvesters aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.11s) and NCC (21.24s):<br>G shift: (17, 60); R shift: (14, 124)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Icon</h3>
+          <img class="lightbox-trigger" src="./media/icon.jpg" alt="icon aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.13s) and NCC (20.08s):<br>G shift: (17, 42); R shift: (23, 90)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Ilem Selga</h3>
+          <img class="lightbox-trigger" src="./media/ilemselga.jpg" alt="ilemselga aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.09s) and NCC (21.58s):<br>G shift: (7, 40); R shift: (11, 131)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Melons</h3>
+          <img class="lightbox-trigger" src="./media/melons.jpg" alt="melons aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.49s) and NCC (21.74s):<br>G shift: (10, 80); R shift: (13, 177)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Religious Painting</h3>
+          <img class="lightbox-trigger" src="./media/religious_painting.jpg" alt="religiouspainting aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.48s) and NCC (20.93s):<br>G shift: (6, 30); R shift: (6, 70)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Self Portrait</h3>
+          <img class="lightbox-trigger" src="./media/self_portriat.jpg" alt="selfportrait aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.47s) and NCC (21.58s):<br>G shift: (29, 78); R shift: (37, 176)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Siren</h3>
+          <img class="lightbox-trigger" src="./media/siren.jpg" alt="siren aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.27s) and NCC (21.86s):<br>G shift: (-6, 49); R shift: (-24, 96)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Three Generations</h3>
+          <img class="lightbox-trigger" src="./media/three_generations.jpg" alt="3gen aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.13s) and NCC (21.15s):<br>G shift: (12, 54); R shift: (9, 111)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Wharf</h3>
+          <img class="lightbox-trigger" src="./media/wharf.jpg" alt="whart aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.13s) and NCC (21.98s):<br>G shift: (-7, 15); R shift: (-16, 83)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Chosen Image 1</h3>
+          <img class="lightbox-trigger" src="./media/chosen1.jpg" alt="chosen 1 aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.82s) and NCC (21.78s):<br>G shift: (-2, 24); R shift: (-2, 113)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Chosen Image 2</h3>
+          <img class="lightbox-trigger" src="./media/chosen2.jpg" alt="chosen 2 aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.45s) and NCC (22.42s):<br>G shift: (3, 44); R shift: (2, 164)
+          </div>
+        </figure>
+        <figure class="media-container">
+          <h3>Chosen Image 3</h3>
+          <img class="lightbox-trigger" src="./media/chosen3.jpg" alt="chosen 3 aligned with single-scale search">
+          <div class="shift-readout">
+                For both L2 (10.56s) and NCC (21.48s):<br>G shift: (21, 58); R shift:  (27, 129)
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    CS180 Project 1 · Fall 2026
+  </footer>
+
+</main>
+
+<div id="lightbox-overlay" class="lightbox-overlay">
+  <img id="lightbox-overlay-img" src="" alt="">
+</div>
+<script defer src="../lightbox.js"></script>
+
+</body>
+</html>
